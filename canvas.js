@@ -3,29 +3,40 @@ window.addEventListener('load' , ()=> {
   const ctx = canvas.getContext("2d");
 
   //resizing
-  canvas.height = window.innerHeight;
-  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight -500;
+  canvas.width = window.innerWidth -300;
 
   //painting
 
   let painting = false;
 
-  function startPosition(){
+  function startPosition(e){
     painting = true;
+    draw(e);
   }
 
   function finishedPosition(){
     painting = false;
+    ctx.beginPath();
   }
 
   function draw(e){
     if(!painting) return;
-    ctx.lineWidth = 1;
-    ctx.lineCap = "round";
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
 
-    ctx.lineTo(e.clientX, e.clientY);
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+
+    ctx.lineTo(x,y);
     ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x,y);
   }
+
+
   
   //event listeners to allow drawing when mouse is pressed down
 
