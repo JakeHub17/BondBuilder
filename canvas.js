@@ -1,47 +1,46 @@
 window.addEventListener('load' , ()=> {
-  const canvas = document.querySelector("#canvas");
-  const ctx = canvas.getContext("2d");
+  const canvas = document.querySelector('canvas');
+  canvas.width = window.innerWidth - 300;
+  canvas.height = window.innerHeight - 500;
+  const ctx = canvas.getContext('2d');
 
-  //resizing
-  canvas.height = window.innerHeight -500;
-  canvas.width = window.innerWidth -300;
+// array to store points of each line
 
-  //painting
+const lines = [];
 
-  let painting = false;
+//track mouse movements 
 
-  function startPosition(e){
-    painting = true;
-    draw(e);
-  }
+let isDrawing = false;
+let currentLine = [];
 
-  function finishedPosition(){
-    painting = false;
-    ctx.beginPath();
-  }
+canvas.addEventListener('mousedown', startLine);
+canvas.addEventListener('mousemove', drawLine);
+canvas.addEventListener('mouseup', endLine);
 
-  function draw(e){
-    if(!painting) return;
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-
-    ctx.lineTo(x,y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x,y);
-  }
-
-
+function startLine(e){
+  isDrawing = true;
+  currentLine = [ [event.offsetX, event.offsetY] ];
+}
+function drawLine(e){
+  if(isDrawing){
+    const newPoint = [event.offsetX, event.offsetY];
+    currentLine.push(newPoint);
   
-  //event listeners to allow drawing when mouse is pressed down
 
-  canvas.addEventListener("mousedown", startPosition);
-  canvas.addEventListener("mouseup", finishedPosition);
-  canvas.addEventListener("mousemove", draw);
+  ctx.beginPath();
+  ctx.moveTo(currentLine[currentLine.length - 2][0], currentLine[currentLine.length - 2 ][1]);
+  ctx.lineTo(newPoint[0], newPoint[1]);
+  ctx.stroke();
+}
+}
+
+function endLine(e){
+  if (isDrawing) {
+    isDrawing = false;
+    lines.push(currentLine);
+    currentLine = [];
+  }
+}
+
+
 });
-
