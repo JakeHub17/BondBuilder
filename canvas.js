@@ -1,46 +1,66 @@
-window.addEventListener('load' , ()=> {
-  const canvas = document.querySelector('canvas');
-  canvas.width = window.innerWidth - 300;
-  canvas.height = window.innerHeight - 500;
-  const ctx = canvas.getContext('2d');
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var lines = [];
+var isDrawing = false;
+var rect = canvas.getBoundingClientRect(); // Get canvas position
+var startPoint = {x: 0, y: 0};
+var endPoint = {x: 0, y: 0};
+var lineLength = 50; // Length of each line
 
-// array to store points of each line
+// Set canvas size
+canvas.width = 500;
+canvas.height = 500;
 
-const lines = [];
+// Add event listeners
+canvas.addEventListener("mousedown", startDrawing);
+canvas.addEventListener("mousemove", drawLine);
+canvas.addEventListener("mouseup", endDrawing);
 
-//track mouse movements 
-
-let isDrawing = false;
-let currentLine = [];
-
-canvas.addEventListener('mousedown', startLine);
-canvas.addEventListener('mousemove', drawLine);
-canvas.addEventListener('mouseup', endLine);
-
-function startLine(e){
+// Start drawing
+function startDrawing(event) {
   isDrawing = true;
-  currentLine = [ [event.offsetX, event.offsetY] ];
-}
-function drawLine(e){
-  if(isDrawing){
-    const newPoint = [event.offsetX, event.offsetY];
-    currentLine.push(newPoint);
-  
-
-  ctx.beginPath();
-  ctx.moveTo(currentLine[currentLine.length - 2][0], currentLine[currentLine.length - 2 ][1]);
-  ctx.lineTo(newPoint[0], newPoint[1]);
-  ctx.stroke();
-}
+  startPoint = {x: event.clientX - rect.left, y: event.clientY - rect.top}; // Adjust for canvas position
+  endPoint = {x: event.clientX - rect.left, y: event.clientY - rect.top}; // Adjust for canvas position
 }
 
-function endLine(e){
+// Draw line while mouse is moving
+function drawLine(event) {
   if (isDrawing) {
-    isDrawing = false;
-    lines.push(currentLine);
-    currentLine = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    endPoint = {x: event.clientX - rect.left, y: event.clientY - rect.top}; // Adjust for canvas position
+    drawLines();
+    drawCurrentLine();
   }
 }
 
+// End drawing and save line to array
+function endDrawing(event) {
+  isDrawing = false;
+  endPoint = {x: event.clientX - rect.left, y: event.clientY - rect.top}; // Adjust for canvas position
+  lines.push({start: startPoint, end: endPoint});
+  drawLines();
+}
 
-});
+// Draw all lines in array
+function drawLines() {
+  for (var i = 0; i < lines.length; i++) {
+    var start = lines[i].start;
+    var end = lines[i].end;
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.stroke();
+  }
+}
+
+// Draw current line being drawn
+function drawCurrentLine() {
+  ctx.beginPath();
+  ctx.moveTo(startPoint.x, startPoint.y);
+  ctx.lineTo(endPoint.x, endPoint.y);
+  ctx.stroke();
+}
+
+console.log(lines);
+
+
